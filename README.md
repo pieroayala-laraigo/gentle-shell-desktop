@@ -86,6 +86,11 @@ arrives), Back to chat, and Stop (disabled until gentle-agents exposes a
 stop command over RPC). The tab is per chat, never a global list — a
 helper only ever shows under the chat that started it.
 
+A `List | Graph` toggle above the helpers switches the list (the default)
+for a zoomable graph of that chat's main agent and the helpers it started,
+ordered by start time with each node's status and elapsed time; selecting
+a node opens its thread, the same as picking it in the list.
+
 The app sets `GENTLE_SHELL_INTERACTIVE_HOST=1` on the pi process it spawns
 so gentle-pi publishes helper activity and enables RPC dialogs (gentle-pi
 3.7.0 or newer; with an older gentle-pi the Helpers tab stays empty).

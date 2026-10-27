@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
-import { describe, expect, it } from "vitest";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { beforeAll, describe, expect, it } from "vitest";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import type { HelperTask, HelpersActivity } from "@shared/bridge-types";
 import { HelpersContainer } from "./HelpersContainer";
 
@@ -166,6 +166,95 @@ describe("HelpersContainer", () => {
       fireEvent.click(screen.getByText("Earlier task"));
 
       expect(screen.getByRole("heading", { name: "Earlier task" })).toBeInTheDocument();
+    });
+  });
+
+  describe("the List | Graph toggle", () => {
+    // React Flow measures its container and nodes; jsdom implements
+    // neither ResizeObserver nor DOMMatrixReadOnly.
+    beforeAll(() => {
+      globalThis.ResizeObserver ??= class {
+        observe() {}
+        unobserve() {}
+        disconnect() {}
+      };
+      globalThis.DOMMatrixReadOnly ??= class {
+        m22 = 1;
+        constructor(_transform?: string) {}
+      } as unknown as typeof DOMMatrixReadOnly;
+    });
+
+    const graphTasks = [
+      task({ id: "2", label: "Second", status: "running", startedAt: "2026-09-22T10:00:20.000Z" }),
+      task({
+        id: "1",
+        label: "First",
+        status: "done",
+        startedAt: "2026-09-22T10:00:00.000Z",
+        endedAt: "2026-09-22T10:01:40.000Z",
+      }),
+      task({ id: "3", label: "Third", status: "queued", createdAt: "2026-09-22T10:00:30.000Z" }),
+    ];
+
+    function renderHelpers() {
+      render(<HelpersContainer activity={activity(graphTasks)} onBackToChat={() => {}} openedAt={OPENED_AT} />);
+    }
+
+    it("shows the list by default", () => {
+      renderHelpers();
+
+      expect(screen.getByRole("button", { name: "List" })).toHaveAttribute("aria-pressed", "true");
+      expect(screen.getByRole("button", { name: "Graph" })).toHaveAttribute("aria-pressed", "false");
+      expect(screen.getByRole("list")).toBeInTheDocument();
+      expect(screen.queryByRole("region", { name: "Helpers graph" })).not.toBeInTheDocument();
+    });
+
+    it("switches to the graph and back", () => {
+      renderHelpers();
+
+      fireEvent.click(screen.getByRole("button", { name: "Graph" }));
+      expect(screen.getByRole("button", { name: "Graph" })).toHaveAttribute("aria-pressed", "true");
+      expect(screen.getByRole("region", { name: "Helpers graph" })).toBeInTheDocument();
+      expect(screen.queryByRole("list")).not.toBeInTheDocument();
+
+      fireEvent.click(screen.getByRole("button", { name: "List" }));
+      expect(screen.getByRole("list")).toBeInTheDocument();
+      expect(screen.queryByRole("region", { name: "Helpers graph" })).not.toBeInTheDocument();
+    });
+
+    it("draws the main agent plus one node per helper, in start order, with status and elapsed time", () => {
+      renderHelpers();
+      fireEvent.click(screen.getByRole("button", { name: "Graph" }));
+
+      const graph = within(screen.getByRole("region", { name: "Helpers graph" }));
+      expect(graph.getByText("Main agent")).toBeInTheDocument();
+      const helperNodes = graph.getAllByRole("button", { name: /^Helper / });
+      expect(helperNodes.map((node) => node.getAttribute("aria-label"))).toEqual([
+        "Helper First, Done, 1m 40s",
+        expect.stringMatching(/^Helper Second, Running, \d/),
+        "Helper Third, Queued",
+      ]);
+      expect(within(helperNodes[0]!).getByText("Done")).toBeInTheDocument();
+      expect(within(helperNodes[0]!).getByText("1m 40s")).toBeInTheDocument();
+    });
+
+    it("opens the helper's thread when its graph node is selected", () => {
+      renderHelpers();
+      expect(screen.getByRole("heading", { name: "Second" })).toBeInTheDocument();
+
+      fireEvent.click(screen.getByRole("button", { name: "Graph" }));
+      fireEvent.click(within(screen.getByRole("region", { name: "Helpers graph" })).getByRole("button", { name: /^Helper Third/ }));
+
+      expect(screen.getByRole("heading", { name: "Third" })).toBeInTheDocument();
+      expect(screen.getByRole("button", { name: /^Helper Third/ })).toHaveAttribute("aria-current", "true");
+    });
+
+    it("shows the empty message instead of a graph when the chat has no helpers", () => {
+      render(<HelpersContainer activity={activity([])} onBackToChat={() => {}} openedAt={OPENED_AT} />);
+
+      fireEvent.click(screen.getByRole("button", { name: "Graph" }));
+
+      expect(screen.getByText("No helpers in this chat yet.")).toBeInTheDocument();
     });
   });
 });

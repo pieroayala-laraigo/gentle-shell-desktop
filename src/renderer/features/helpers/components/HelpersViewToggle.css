@@ -1,0 +1,29 @@
+.gc-helpers-view-toggle {
+  display: inline-flex;
+  align-self: flex-start;
+  margin: 0 0.9rem 0.4rem;
+  padding: 2px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--bg);
+}
+
+.gc-helpers-view-toggle__option {
+  padding: 0.2rem 0.65rem;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.gc-helpers-view-toggle__option:hover {
+  color: var(--text-2);
+}
+
+.gc-helpers-view-toggle__option[aria-pressed="true"] {
+  background: var(--raised);
+  color: var(--text);
+}

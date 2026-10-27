@@ -14,6 +14,11 @@
   background: var(--panel);
 }
 
+.gc-helpers__list-pane--graph {
+  width: 50%;
+  min-width: 320px;
+}
+
 .gc-helpers__thread-pane {
   flex: 1;
   display: flex;

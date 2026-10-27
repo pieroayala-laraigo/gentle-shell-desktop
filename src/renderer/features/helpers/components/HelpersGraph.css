@@ -1,0 +1,87 @@
+.gc-helpers-graph {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
+
+/* React Flow's dark color mode, retinted with the theme tokens. */
+.gc-helpers-graph .react-flow {
+  --xy-background-color: var(--panel);
+  --xy-background-pattern-color: var(--line);
+  --xy-edge-stroke: var(--line-strong);
+  --xy-controls-button-background-color: var(--raised);
+  --xy-controls-button-background-color-hover: var(--line);
+  --xy-controls-button-color: var(--text-2);
+  --xy-controls-button-border-color: var(--line);
+}
+
+.gc-helpers-graph__node {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  width: 200px;
+  padding: 0.55rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid var(--line-strong);
+  background: var(--raised);
+  color: var(--text-2);
+  font-family: var(--font-body);
+  text-align: left;
+}
+
+button.gc-helpers-graph__node {
+  cursor: pointer;
+}
+
+button.gc-helpers-graph__node:hover {
+  color: var(--text);
+}
+
+.gc-helpers-graph__node--main {
+  width: 140px;
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.gc-helpers-graph__node--selected {
+  border-color: var(--accent);
+  color: var(--text);
+}
+
+.gc-helpers-graph__title {
+  font-size: 0.85rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.gc-helpers-graph__meta {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.72rem;
+  color: var(--muted);
+}
+
+.gc-helpers-graph__dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: var(--muted);
+}
+
+.gc-helpers-graph__dot--running {
+  background: var(--accent);
+}
+
+.gc-helpers-graph__dot--waiting {
+  background: var(--blue);
+}
+
+.gc-helpers-graph__dot--done {
+  background: var(--green);
+}
+
+.gc-helpers-graph__dot--failed {
+  background: var(--red);
+}
